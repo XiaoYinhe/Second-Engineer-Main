@@ -460,11 +460,6 @@
               <FilePath>..\TDT_Task\src\chassis.cpp</FilePath>
             </File>
             <File>
-              <FileName>elevator.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\TDT_Task\src\elevator.cpp</FilePath>
-            </File>
-            <File>
               <FileName>rescue_task.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\TDT_Task\src\rescue_task.cpp</FilePath>
