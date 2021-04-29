@@ -22,8 +22,8 @@
 #include "rescue_task.h"
 Motor Pave[2]
 {
-	Motor (M3508,CAN2,0x203),
-    Motor (M3508,CAN2,0x204)
+	Motor (M3508,CAN1,0x205),
+    Motor (M3508,CAN1,0x206)
 };
 enum Paving_sta{anastole,insert};
 u8 flag_pave;
