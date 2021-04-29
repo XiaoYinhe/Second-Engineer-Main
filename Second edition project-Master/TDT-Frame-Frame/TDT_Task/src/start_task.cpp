@@ -69,13 +69,6 @@ extern TaskHandle_t StartTask_Handler;
 /*-句柄-*/	TaskHandle_t ChassisTask_Handler;
 /*-声明-*/	extern void Chassis_Task(void *pvParameters);
 
-/*升降机处理任务*/
-/*-摘要-*/	#define ELEVATOR
-/*-优先-*/	#define ELEVATOR_TASK_PRIO		3
-/*-堆栈-*/	#define ELEVATOR_STK_SIZE 		1000
-/*-句柄-*/	TaskHandle_t ElevatorTask_Handler;
-/*-声明-*/	extern void Elevator_Task(void *pvParameters);
-
 /*救援处理任务*/
 /*-摘要-*/	#define RESCUE
 /*-优先-*/	#define RESCUE_TASK_PRIO		3
@@ -107,7 +100,6 @@ void Start_Task(void* pvParameters)
 //	creatResult[taskNum++]=		mTaskCreate(DBUS,Dbus);//遥控器解算任务
 
 	creatResult[taskNum++]= 	mTaskCreate(CHASSIS,Chassis);//底盘任务
-	creatResult[taskNum++]= 	mTaskCreate(ELEVATOR,Elevator);//升降机任务
 	creatResult[taskNum++]= 	mTaskCreate(RESCUE,Rescue);//救援任务
 	creatResult[taskNum++]= 	mTaskCreate(PAVING,Paving);//铺路任务
 
