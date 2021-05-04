@@ -227,3 +227,31 @@ void rstCount(void)
 		HasRST = 0;
 	}
 }
+
+
+/**
+  * @brief 遥控器数据处理
+* @para key[3:0] 鼠标左右键及键盘
+  * @note 替代原始的数据处理
+  */
+void sendKeyToUp(uint8_t *key)
+{
+	CanTxMsg canTxMsg;
+
+	canTxMsg.IDE = CAN_Id_Standard;		//标准帧 CAN_Id_Standard 使用标准标识符 CAN_Id_Extended 使用标准标识符 + 扩展标识符 
+	canTxMsg.RTR = CAN_RTR_Data;			//数据帧 CAN_RTR_Data 数据帧 CAN_RTR_Remote 远程帧 
+	canTxMsg.DLC = 8;						//帧长度 范围是 0 到 0x8
+	
+	canTxMsg.StdId =  0x114;					//范围为 0 到 0x7FF 
+	
+	canTxMsg.Data[0] = key[0];	//SBUS_buf[12];鼠标左键
+	canTxMsg.Data[1] = key[1];	//SBUS_buf[13];鼠标右键
+	canTxMsg.Data[2] = key[2];	//SBUS_buf[14];键盘低8通道
+	canTxMsg.Data[3] = key[3];	//SBUS_buf[15];鼠标高8通道
+	canTxMsg.Data[4] = 0;
+	canTxMsg.Data[5] = 0;
+	canTxMsg.Data[6] = 0;
+	canTxMsg.Data[7] = 0;
+	u8 mbox=CAN_Transmit(CAN1,&canTxMsg);
+	delayUs(110);
+}
