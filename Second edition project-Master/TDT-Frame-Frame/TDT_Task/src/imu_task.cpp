@@ -36,7 +36,7 @@ Mpu6050 Mpu6050_Top(GPIOC,GPIO_Pin_9,GPIO_Pin_8);
 Mpu6050 Mpu6050_Top(GPIOC,GPIO_Pin_2,GPIO_Pin_1);
 #endif
 extern tdtusart::timeSimulaneity imuTimeMatch;
-//Icm20602 icm20602(SPI1,100);
+Icm20602 icm20602(SPI1,100);
 
 /**
   * @brief 陀螺仪任务
@@ -45,8 +45,8 @@ extern tdtusart::timeSimulaneity imuTimeMatch;
 void Imu_Task(void *pvParameters)
 {
 	/*I2C以及MPU6050初始化*/
-    Mpu6050_Top.init(1000,42);
-	  Mpu6050_Top.calOffset_Gyro();
+    icm20602.init();
+	  icm20602.calOffset_Gyro();
 
 	Cycle imuCycle;
 	//进入循环时的时间
@@ -55,8 +55,8 @@ void Imu_Task(void *pvParameters)
 	{
 		//绝对延时
 		vTaskDelayUntil(&PreviousWakeTime,pdMS_TO_TICKS(2));	
-		/*MPU6050读取*/
-		Mpu6050_Top.TDT_IMU_update(imuCycle.getCycleT()/2);	
+		/*icm20602读取*/
+		icm20602.TDT_IMU_update(imuCycle.getCycleT()/2);	
 	}
 }
  

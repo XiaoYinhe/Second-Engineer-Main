@@ -4,7 +4,7 @@
 //三个SPI的默认CS脚
 namespace SPI{
 	enum SPIX{spi1=0,spi2,spi3};
-	CsPin defaultCsPin[3] ={{GPIOA,GPIO_Pin_4} , {0,0} , {GPIOB,GPIO_Pin_6}};	
+	CsPin defaultCsPin[3] ={{GPIOA,GPIO_Pin_4} , {0,0} , {GPIOA,GPIO_Pin_15}};	
 }
 //静态成员申明和定义
 bool Spi::initFlag[3] ={false,false,false};
@@ -62,7 +62,7 @@ void Spi::init(void)
 	{
 		initFlag[SPI::spi3] = true;
 		csInit(SPI::defaultCsPin[SPI::spi3]);
-		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);//使能GPIOA时钟
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);//使能GPIOA时钟
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI3, ENABLE);//使能SPI2,3时钟
 		gpioInitStructure.GPIO_Pin =  GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5;//PA5~7复用功能输出	
 		GPIO_Init(GPIOB, &gpioInitStructure);//初始化	

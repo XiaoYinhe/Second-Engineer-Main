@@ -30,7 +30,7 @@ History:
 #include "task.h"
 /**FreeRTOS*END***************/
 #include "mpu6050.h"
-//#include "icm20602.h"
+#include "icm20602.h"
 
 /*开始任务*///用于创建任务、队列、定时器
 /*-摘要-*/	#define START
@@ -39,8 +39,8 @@ History:
 /*-句柄-*/	TaskHandle_t StartTask_Handler;
 /*-声明-*/	extern void Start_Task(void *pvParameters);
 
-extern Mpu6050 Mpu6050_Top;
-//extern Icm20602 icm20602;
+//extern Mpu6050 Mpu6050_Top;
+extern Icm20602 icm20602;
 
 /*通用任务的宏定义在 my_task.h 下*/
 int main(void)
