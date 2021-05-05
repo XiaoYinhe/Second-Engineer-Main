@@ -37,7 +37,7 @@ uint8_t deforceFlag = 0;
 //辅助函数声明
 static void taskSchedule();
 static void dbusHandleData(uint8_t *SBUS_buf);
-
+static void sendKeyToUp(uint8_t *key);
 
 
 void rstCount(void);
@@ -79,7 +79,10 @@ void Dbus_Task(void *pvParameters)
 		}
 		/*▲ 数据解算*/
 		dbusHandleData(SBUS_buf_task);
-
+		
+		//将遥控数据发送到副控
+		sendKeyToUp(SBUS_buf_task);
+		
 		//调用其他任务的遥控器更新函数
 		for (int i = 0; i < VirtualTask::taskNum; i++)
 		{
@@ -244,14 +247,14 @@ void sendKeyToUp(uint8_t *key)
 	
 	canTxMsg.StdId =  0x114;					//范围为 0 到 0x7FF 
 	
-	canTxMsg.Data[0] = key[0];	//SBUS_buf[12];鼠标左键
-	canTxMsg.Data[1] = key[1];	//SBUS_buf[13];鼠标右键
-	canTxMsg.Data[2] = key[2];	//SBUS_buf[14];键盘低8通道
-	canTxMsg.Data[3] = key[3];	//SBUS_buf[15];鼠标高8通道
-	canTxMsg.Data[4] = 0;
+	canTxMsg.Data[0] = key[12];	//SBUS_buf[12];鼠标左键
+	canTxMsg.Data[1] = key[13];	//SBUS_buf[13];鼠标右键
+	canTxMsg.Data[2] = key[14];	//SBUS_buf[14];键盘低8通道
+	canTxMsg.Data[3] = key[15];	//SBUS_buf[15];鼠标高8通道
+	canTxMsg.Data[4] = key[5];
 	canTxMsg.Data[5] = 0;
 	canTxMsg.Data[6] = 0;
 	canTxMsg.Data[7] = 0;
 	u8 mbox=CAN_Transmit(CAN1,&canTxMsg);
-	delayUs(110);
+	//delayUs(80);
 }
