@@ -1,15 +1,15 @@
 /************
-@brief 铺路任务函数
-@describe	1、此函数与视觉联调插障碍块实现铺路
-			2、按键控制
-@function	可以直接使用AirCmd	
+@brief 锟斤拷路锟斤拷锟斤拷锟斤拷
+@describe	1锟斤拷锟剿猴拷锟斤拷锟斤拷锟接撅拷锟斤拷锟斤拷锟斤拷锟较帮拷锟斤拷实锟斤拷锟斤拷路
+			2锟斤拷锟斤拷锟斤拷锟斤拷锟斤拷
+@function	锟斤拷锟斤拷直锟斤拷使锟斤拷AirCmd	
 		
 		
 **************/
 
 #include "paving_task.h"
 /**FreeRTOS*START***************/
-#include "FreeRTOS.h" //FreeRTOS使用
+#include "FreeRTOS.h" //FreeRTOS使锟斤拷
 #include "timers.h"
 #include "list.h"
 #include "queue.h"

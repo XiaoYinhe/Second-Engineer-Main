@@ -18,9 +18,15 @@
 #include "filter.h"
 #include "curve_model.h"
 
+//VirtualTask gimbalTask;
+
+#include "task_virtual.h"
+
+
+
 extern Icm20602 icm20602;
 Motor MYaw = Motor(M2006,CAN2,0x202);
-Motor MPitch = Motor(M3510,CAN2,0x201);
+//Motor MPitch = Motor(M3510,CAN2,0x208);
 
 
 #define YAW_PID_NUM 1
@@ -30,7 +36,7 @@ Motor MPitch = Motor(M3510,CAN2,0x201);
 PidParam yawInner[YAW_PID_NUM],yawOuter[YAW_PID_NUM];
 
 //Pitch 方案1为机械角 方案2为陀螺仪
-PidParam pitchInner[PITCH_PID_NUM],pitchOuter[PITCH_PID_NUM];
+//PidParam pitchInner[PITCH_PID_NUM],pitchOuter[PITCH_PID_NUM];
 
 
 
@@ -39,7 +45,7 @@ float yawSetPos=0,yawTarPos;
 float pitchSetPos=0;
 u8 useImuFlag = 0;	//是否使用陀螺仪标志位，默认使用，同时作为PID参数号
 float yawUserOffset =0; //yaw轴手动校准值，用于自动校准失败时手动校准，比如机械限位掉了，就必须使用手动校准
-void loadPara(PidParam *parm,float kp,float ki,float kd,float intMax, float outMax)
+static void loadPara(PidParam *parm,float kp,float ki,float kd,float intMax, float outMax)
 {
 	parm->kp = kp;
 	parm->ki = ki;
@@ -53,7 +59,6 @@ void loadPara(PidParam *parm,float kp,float ki,float kd,float intMax, float outM
 //yaw校准
 u8 yawOffset()
 {
-	
 	u8 err=0; //校准错误码
 	//Yaw轴需要初始校准
 	u16 offsetDelayCnt =0;
@@ -75,7 +80,7 @@ u8 yawOffset()
 			break;
 		}
 
-		//如果超时：退出
+		//如果超时5000ms：退出
 		if(offsetDelayCnt++ > 5000)
 		{
 			err=2;
@@ -96,43 +101,44 @@ u8 yawOffset()
 u8 offsetErrCode=0; //校准错误码
 void Gimbal_Task(void *pvParameters)
 {
+	VirtualTask gimbalTask;
+	gimbalTask.setTaskHandler(NULL);
 	MYaw.pidInner.setPlanNum(YAW_PID_NUM);
 	MYaw.pidOuter.setPlanNum(YAW_PID_NUM);
-	MPitch.pidInner.setPlanNum(PITCH_PID_NUM);
-	MPitch.pidOuter.setPlanNum(PITCH_PID_NUM);
+//	MPitch.pidInner.setPlanNum(PITCH_PID_NUM);
+//	MPitch.pidOuter.setPlanNum(PITCH_PID_NUM);
 
 	//Yaw轴机械角内外环
-	loadPara(&yawInner[0],2,0,0,100,MYaw.getMotorCurrentLimit());
+	loadPara(&yawInner[0],1.5,0,0,100,MYaw.getMotorCurrentLimit());
 	loadPara(&yawOuter[0],1,0,0,100,MYaw.getMotorSpeedLimit());
 	//Pitch轴机械角内外环
-	loadPara(&pitchInner[0],15,0,0,100,MYaw.getMotorCurrentLimit());
-	loadPara(&pitchOuter[0],2,0.5,0,100,MYaw.getMotorSpeedLimit());
-	//Pitch轴陀螺仪内外环
-	loadPara(&pitchInner[1],1,0,0,100,MYaw.getMotorCurrentLimit());
-	loadPara(&pitchOuter[1],1,0,0,100,MYaw.getMotorSpeedLimit());
+//	loadPara(&pitchInner[0],15,0,0,100,MYaw.getMotorCurrentLimit());
+//	loadPara(&pitchOuter[0],2,0.5,0,100,MYaw.getMotorSpeedLimit());
+//	//Pitch轴陀螺仪内外环
+//	loadPara(&pitchInner[1],1,0,0,100,MYaw.getMotorCurrentLimit());
+//	loadPara(&pitchOuter[1],1,0,0,100,MYaw.getMotorSpeedLimit());
 	
 
 	MYaw.pidInner.paramPtr = yawInner;
 	MYaw.pidOuter.paramPtr = yawOuter;
 	
-	MPitch.pidInner.paramPtr = pitchInner;
-	MPitch.pidOuter.paramPtr = pitchOuter;
+//	MPitch.pidInner.paramPtr = pitchInner;
+//	MPitch.pidOuter.paramPtr = pitchOuter;
 
 	MYaw.pidInner.fbValuePtr[0] = &MYaw.canInfo.speed;
 	MYaw.pidOuter.fbValuePtr[0] = &MYaw.canInfo.totalEncoder;
 	
-	MPitch.pidInner.fbValuePtr[0] = &MPitch.canInfo.speed;
-	MPitch.pidOuter.fbValuePtr[0] = &MPitch.canInfo.encoder;
-	
-	MPitch.pidInner.fbValuePtr[1] = &icm20602.gyro.dps.data[2];
-	MPitch.pidOuter.fbValuePtr[1] = &icm20602.Angle.pitch;
-	
-	while(RC.Key.SW2 != RCS::Mid);
+//	MPitch.pidInner.fbValuePtr[0] = &MPitch.canInfo.speed;
+//	MPitch.pidOuter.fbValuePtr[0] = &MPitch.canInfo.encoder;
+//	
+//	MPitch.pidInner.fbValuePtr[1] = &icm20602.gyro.dps.data[2];
+//	MPitch.pidOuter.fbValuePtr[1] = &icm20602.Angle.pitch;
+
 		
 	//Yaw轴初始校准
 	offsetErrCode = yawOffset();
 	
-	Kf mouseYkalman;	//PITCH 鼠标Y轴卡尔曼滤波
+	//Kf mouseYkalman;	//PITCH 鼠标Y轴卡尔曼滤波
 	FivePower pitchCurver;	//YAW 五次三项曲线
 	pitchSetPos=4050;//中间值
 	while(1)
@@ -151,16 +157,23 @@ void Gimbal_Task(void *pvParameters)
 			gimbalState =! gimbalState;
 		}
 		
+		if(RC.Key.SW1 == RCS::Up)
+		{
+			gimbalState =1;
+		}
+		else
+			gimbalState =0;
+		
 		//状态机开始
 		switch(gimbalState)
 		{
 			case 0: //默认状态，摇杆和鼠标均能控制云台Pitch
-				pitchSetPos -= RC.Key.CH[1]/150.0f;//遥控右拨杆Y轴
-				pitchSetPos += mouseYkalman.KalmanFilter((double) RC.Key.CH[7]*15, 2.5f, 330.2f, 1);;//鼠标Y轴
-				//yawTarPos = 0;	//yaw复位
+//				pitchSetPos -= RC.Key.CH[1]/150.0f;//遥控右拨杆Y轴
+//				pitchSetPos += mouseYkalman.KalmanFilter((double) RC.Key.CH[7]*15, 2.5f, 330.2f, 1);;//鼠标Y轴
+				yawTarPos = 0;	//yaw复位
 				break;
 			case 1: //看肚子状态，
-				pitchSetPos = 0;
+//				pitchSetPos = 0;
 				yawTarPos = -0;
 				break;
 			default:
@@ -184,14 +197,14 @@ void Gimbal_Task(void *pvParameters)
 		yawUserOffset = LIMIT(yawUserOffset,-360,360);
 		
 		//PITCH轴曲线
-		pitchCurver.CurveModel(yawTarPos,&yawSetPos,1,1);
+//		pitchCurver.CurveModel(yawTarPos,&yawSetPos,1,1);
 		
 		//电机执行
 		MYaw.ctrlPosition(yawSetPos + yawUserOffset);
-		MPitch.ctrlPosition(pitchSetPos, useImuFlag);
+//		MPitch.ctrlPosition(pitchSetPos, useImuFlag);
 		
 		//延时1ms
-		vTaskDelay(pdMS_TO_TICKS(1));
+		vTaskDelay(pdMS_TO_TICKS(5));
 	}
 }
 

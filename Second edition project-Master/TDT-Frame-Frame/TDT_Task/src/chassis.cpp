@@ -13,6 +13,10 @@
 #include "vision.h"
 #include "dbus_task.h"
 #include "filter.h"
+#include "task_virtual.h"
+extern TaskHandle_t ChassisTask_Handler;
+VirtualTask chassisTask = VirtualTask();
+
 
 Motor MChassis[WHEEL_NUM] =
 {
@@ -44,6 +48,8 @@ float chassisCtrlIndex;
 
 void Chassis_Task(void *pvParameters)
 {
+	
+	chassisTask.setTaskHandler(ChassisTask_Handler);
 	ChassisSpd_t ChassisSpd;
 	
 	for(u8 i = 0;i < WHEEL_NUM ; i++)
@@ -80,9 +86,9 @@ void Chassis_Task(void *pvParameters)
 		ChassisSpd.ROT = (RC.Key.CH[0] * ROTA_MAXSPEED *0.33f + ChassisSpd.ROX);
 			
 		chassisSetSpd[0] = (int16_t)((+ ChassisSpd.FB + ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) + ChassisSpd.ROT);
-		chassisSetSpd[1] = - (int16_t)((- ChassisSpd.FB + ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) - ChassisSpd.ROT );
-		chassisSetSpd[2] = - (int16_t)((+ ChassisSpd.FB - ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) - ChassisSpd.ROT);
-		chassisSetSpd[3] = (int16_t)((- ChassisSpd.FB - ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) + ChassisSpd.ROT );
+		chassisSetSpd[1] = (int16_t)((- ChassisSpd.FB + ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) + ChassisSpd.ROT );
+		chassisSetSpd[2] = (int16_t)((- ChassisSpd.FB - ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) + ChassisSpd.ROT);
+		chassisSetSpd[3] = (int16_t)((+ ChassisSpd.FB - ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) + ChassisSpd.ROT );
 		/*保证四电机合成速度方向*/
 		float setMax;//最大速度值 
 		setMax = ABS(chassisSetSpd[0]);
