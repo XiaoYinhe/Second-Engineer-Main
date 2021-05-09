@@ -1,15 +1,15 @@
 /************
-@brief ��·������
-@describe	1���˺������Ӿ��������ϰ���ʵ����·
-			2����������
-@function	����ֱ��ʹ��AirCmd	
+@brief 铺路任务函数
+@describe	1、此函数与视觉联调插障碍块实现铺路
+			2、按键控制
+@function	可以直接使用AirCmd	
 		
 		
 **************/
 
 #include "paving_task.h"
 /**FreeRTOS*START***************/
-#include "FreeRTOS.h" //FreeRTOSʹ��
+#include "FreeRTOS.h" //FreeRTOS使用
 #include "timers.h"
 #include "list.h"
 #include "queue.h"
@@ -26,8 +26,8 @@
 
 Motor Pave[2]
 {
-	Motor (M3508,CAN1,0x207),
-    Motor (M3508,CAN1,0x208)
+	Motor (M3508,CAN2,0x207),
+    Motor (M3508,CAN2,0x208)
 };
 class PaveTask : public VirtualTask
 {

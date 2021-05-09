@@ -1,7 +1,7 @@
 #include "gimbal_task.h"
 
 /**FreeRTOS*START***************/
-#include "FreeRTOS.h" //FreeRTOS π”√
+#include "FreeRTOS.h" 
 #include "timers.h"
 #include "list.h"
 #include "queue.h"
