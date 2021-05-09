@@ -29,20 +29,30 @@ Motor Pave[2]
 	Motor (M3508,CAN2,0x207),
     Motor (M3508,CAN2,0x208)
 };
+
+
+extern void loadPara(PidParam *parm,float kp,float ki,float kd,float intMax, float outMax);
+enum Paving_sta{anastole,insert};
+u8 flag_pave;
+
+
 class PaveTask : public VirtualTask
 {
 public:
 	u8 offsetFlag=0;
 	void deforceCancelCallBack() override
 	{
-		VirtualTask::deforceCancelCallBack();
+		
 		while(1)
 		{
 			offsetFlag = Pave[0].ctrlMotorOffset(-1,2000,7000);
 			Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
 			
 			if(offsetFlag >0)
+			{
+				VirtualTask::deforceCancelCallBack();
 				break;
+			}
 			vTaskDelay(pdMS_TO_TICKS(5));
 		}
 	}
@@ -52,57 +62,35 @@ public:
 PaveTask paveTask;
 
 
-enum Paving_sta{anastole,insert};
-u8 flag_pave;
-void pave_ctrl()
-{
-	switch(flag_pave)
-	{
-		case anastole:
-			Pave[0].ctrlPosition(0);
-			Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
-			break;
-		case insert:
-			Pave[0].ctrlPosition(-60000);
-			Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
-			break;
-	
-	}
-
-}
 
 void Paving_Task(void *pvParameters)
 {
 	paveTask.setTaskHandler(NULL);
-	PidParam in_pave[2],out_pave[2];
+	PidParam in_pave,out_pave;
+		
+	Pave[0].pidInner.setPlanNum(2);
 	
-	for(int i = 0;i<2;i++)
-    {
-    	Pave[i].pidInner.setPlanNum(2);
-    	Pave[i].pidOuter.setPlanNum(2);
-   
-    	in_pave[i].kp = 0;
-    	in_pave[i].ki = 0;
-    	in_pave[i].kd = 0;
-    	in_pave[i].resultMax = Pave[i].getMotorCurrentLimit();
-    	
-    	out_pave[i].kp = 0;
-    	out_pave[i].ki = 0;
-    	out_pave[i].kd = 0;	
-    	out_pave[i].resultMax = Pave[i].getMotorSpeedLimit();
-    	
-    	Pave[i].pidInner.paramPtr = &in_pave[i];
-    	Pave[i].pidOuter.paramPtr = &out_pave[i];
-    	
-    	Pave[i].pidInner.fbValuePtr[0] = &Pave[i].canInfo.speed;
-    	Pave[i].pidOuter.fbValuePtr[0] = &Pave[i].canInfo.totalEncoder;
-    	
-    	
-    }
+	loadPara(&in_pave,0,0,0,1000,Pave[0].getMotorCurrentLimit());
+		 
+	Pave[0].pidInner.paramPtr = &in_pave;
+	Pave[0].pidOuter.paramPtr = &out_pave;
+		 
+	Pave[0].pidInner.fbValuePtr[0] = &Pave[0].canInfo.speed;
+	Pave[0].pidOuter.fbValuePtr[0] = &Pave[0].canInfo.totalEncoder;
 	while(1)
 	{
-	
-		pave_ctrl();
+		switch(flag_pave)
+		{
+			case anastole:	//收回
+				Pave[0].ctrlPosition(0);
+				Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
+				break;
+			case insert:	//放下
+				Pave[0].ctrlPosition(-60000);
+				Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
+				break;
+		
+		}
 		
 		vTaskDelay(pdMS_TO_TICKS(5));
 	}

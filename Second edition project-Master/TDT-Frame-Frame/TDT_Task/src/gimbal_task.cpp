@@ -45,7 +45,7 @@ float yawSetPos=0,yawTarPos;
 float pitchSetPos=0;
 u8 useImuFlag = 0;	//是否使用陀螺仪标志位，默认使用，同时作为PID参数号
 float yawUserOffset =0; //yaw轴手动校准值，用于自动校准失败时手动校准，比如机械限位掉了，就必须使用手动校准
-static void loadPara(PidParam *parm,float kp,float ki,float kd,float intMax, float outMax)
+void loadPara(PidParam *parm,float kp,float ki,float kd,float intMax, float outMax)
 {
 	parm->kp = kp;
 	parm->ki = ki;

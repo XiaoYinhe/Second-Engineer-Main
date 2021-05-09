@@ -1,4 +1,4 @@
-﻿#ifndef __GIMBAL_TASK_H__
+#ifndef __GIMBAL_TASK_H__
 #define __GIMBAL_TASK_H__
 #ifdef __cplusplus
  extern "C" {
