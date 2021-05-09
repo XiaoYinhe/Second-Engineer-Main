@@ -23,6 +23,7 @@
 
 #include "task_virtual.h"
 
+#include "curve_model.h"
 
 Motor Pave[2]
 {
@@ -36,61 +37,72 @@ enum Paving_sta{anastole,insert};
 u8 flag_pave;
 
 
+//铺路任务类：为了重写虚函数
 class PaveTask : public VirtualTask
 {
 public:
 	u8 offsetFlag=0;
+	//重写虚函数：添加脱力校准Flag
 	void deforceCancelCallBack() override
 	{
-		
-		while(1)
-		{
-			offsetFlag = Pave[0].ctrlMotorOffset(-1,2000,7000);
-			Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
-			
-			if(offsetFlag >0)
-			{
-				VirtualTask::deforceCancelCallBack();
-				break;
-			}
-			vTaskDelay(pdMS_TO_TICKS(5));
-		}
+		offsetFlag  =0;
+		//恢复铺路任务
+		VirtualTask::deforceCancelCallBack();
 	}
 };
 
 
-PaveTask paveTask;
 
 
 
+float paveSetPos=0;
+float paveRest=0;
+	PidParam in_pave,out_pave;
 void Paving_Task(void *pvParameters)
 {
+	PaveTask paveTask;
 	paveTask.setTaskHandler(NULL);
-	PidParam in_pave,out_pave;
 		
 	Pave[0].pidInner.setPlanNum(2);
-	
-	loadPara(&in_pave,0,0,0,1000,Pave[0].getMotorCurrentLimit());
-		 
+	//加载PID
+	loadPara(&in_pave,5,0,0,1000,Pave[0].getMotorCurrentLimit());
+	loadPara(&out_pave,0.3,0,0,1000,Pave[0].getMotorSpeedLimit());
 	Pave[0].pidInner.paramPtr = &in_pave;
 	Pave[0].pidOuter.paramPtr = &out_pave;
 		 
 	Pave[0].pidInner.fbValuePtr[0] = &Pave[0].canInfo.speed;
 	Pave[0].pidOuter.fbValuePtr[0] = &Pave[0].canInfo.totalEncoder;
+	
 	while(1)
 	{
+		//电机零点校准校准
+		while(paveTask.offsetFlag == 0)
+		{
+			paveTask.offsetFlag = Pave[0].ctrlMotorOffset(150,10000,7000);
+			Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
+			
+			if(paveTask.offsetFlag >0)
+			{
+				break;
+			}
+			vTaskDelay(pdMS_TO_TICKS(5));
+		}
+		
 		switch(flag_pave)
 		{
 			case anastole:	//收回
-				Pave[0].ctrlPosition(0);
-				Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
+				paveSetPos = -4000;	
+			out_pave.resultMax = 1200;	//限速的同时保证输出不要太小
 				break;
 			case insert:	//放下
-				Pave[0].ctrlPosition(-60000);
-				Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
+				paveSetPos = -60000;
+				out_pave.resultMax = 500;
 				break;
-		
 		}
+		
+		
+		Pave[0].ctrlPosition(paveSetPos);
+		Pave[1].ctrlCurrent(-Pave[0].pidInner.result);//辅助电机不适用位置环
 		
 		vTaskDelay(pdMS_TO_TICKS(5));
 	}

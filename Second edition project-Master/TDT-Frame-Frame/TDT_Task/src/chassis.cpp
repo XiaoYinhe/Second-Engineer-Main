@@ -14,8 +14,7 @@
 #include "dbus_task.h"
 #include "filter.h"
 #include "task_virtual.h"
-extern TaskHandle_t ChassisTask_Handler;
-VirtualTask chassisTask = VirtualTask();
+VirtualTask chassisTask;
 
 
 Motor MChassis[WHEEL_NUM] =
@@ -49,7 +48,7 @@ float chassisCtrlIndex;
 void Chassis_Task(void *pvParameters)
 {
 	
-	chassisTask.setTaskHandler(ChassisTask_Handler);
+	chassisTask.setTaskHandler(NULL);
 	ChassisSpd_t ChassisSpd;
 	
 	for(u8 i = 0;i < WHEEL_NUM ; i++)
@@ -101,10 +100,10 @@ void Chassis_Task(void *pvParameters)
 					chassisSetSpd[i]=chassisSetSpd[i]*FB_MAXSPEED*660/setMax;
 		}
 		
-			for(u8 i = 0;i < WHEEL_NUM ; i++)
-    {
-		MChassis[i].ctrlSpeed(chassisSetSpd[i],0);
-  	}	  
+		for(u8 i = 0;i < WHEEL_NUM ; i++)
+		{
+			MChassis[i].ctrlSpeed(chassisSetSpd[i],0);
+		}	  
 	  	vTaskDelay(pdMS_TO_TICKS(5));
 	}
 }

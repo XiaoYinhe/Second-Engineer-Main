@@ -251,10 +251,10 @@ void sendKeyToUp(uint8_t *key)
 	canTxMsg.Data[1] = key[13];	//SBUS_buf[13];鼠标右键
 	canTxMsg.Data[2] = key[14];	//SBUS_buf[14];键盘低8通道
 	canTxMsg.Data[3] = key[15];	//SBUS_buf[15];鼠标高8通道
-	canTxMsg.Data[4] = key[5];
+	canTxMsg.Data[4] = key[5];	//遥控器左右拨杆
 	canTxMsg.Data[5] = 0;
 	canTxMsg.Data[6] = 0;
 	canTxMsg.Data[7] = 0;
-	u8 mbox=CAN_Transmit(CAN1,&canTxMsg);
+	u8 mbox=CAN_Transmit(CAN2,&canTxMsg);
 	//delayUs(80);
 }

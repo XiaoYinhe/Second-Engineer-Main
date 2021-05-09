@@ -25,7 +25,7 @@
 
 
 extern Icm20602 icm20602;
-Motor MYaw = Motor(M2006,CAN2,0x202);
+Motor MYaw = Motor(M2006,CAN2,0x206);
 //Motor MPitch = Motor(M3510,CAN2,0x208);
 
 
@@ -103,14 +103,21 @@ void Gimbal_Task(void *pvParameters)
 {
 	VirtualTask gimbalTask;
 	gimbalTask.setTaskHandler(NULL);
+	
 	MYaw.pidInner.setPlanNum(YAW_PID_NUM);
 	MYaw.pidOuter.setPlanNum(YAW_PID_NUM);
-//	MPitch.pidInner.setPlanNum(PITCH_PID_NUM);
-//	MPitch.pidOuter.setPlanNum(PITCH_PID_NUM);
 
 	//Yaw轴机械角内外环
 	loadPara(&yawInner[0],1.5,0,0,100,MYaw.getMotorCurrentLimit());
 	loadPara(&yawOuter[0],1,0,0,100,MYaw.getMotorSpeedLimit());
+	
+	MYaw.pidInner.paramPtr = yawInner;
+	MYaw.pidOuter.paramPtr = yawOuter;
+	MYaw.pidInner.fbValuePtr[0] = &MYaw.canInfo.speed;
+	MYaw.pidOuter.fbValuePtr[0] = &MYaw.canInfo.totalEncoder;
+	
+//	MPitch.pidInner.setPlanNum(PITCH_PID_NUM);
+//	MPitch.pidOuter.setPlanNum(PITCH_PID_NUM);
 	//Pitch轴机械角内外环
 //	loadPara(&pitchInner[0],15,0,0,100,MYaw.getMotorCurrentLimit());
 //	loadPara(&pitchOuter[0],2,0.5,0,100,MYaw.getMotorSpeedLimit());
@@ -119,14 +126,10 @@ void Gimbal_Task(void *pvParameters)
 //	loadPara(&pitchOuter[1],1,0,0,100,MYaw.getMotorSpeedLimit());
 	
 
-	MYaw.pidInner.paramPtr = yawInner;
-	MYaw.pidOuter.paramPtr = yawOuter;
 	
 //	MPitch.pidInner.paramPtr = pitchInner;
 //	MPitch.pidOuter.paramPtr = pitchOuter;
 
-	MYaw.pidInner.fbValuePtr[0] = &MYaw.canInfo.speed;
-	MYaw.pidOuter.fbValuePtr[0] = &MYaw.canInfo.totalEncoder;
 	
 //	MPitch.pidInner.fbValuePtr[0] = &MPitch.canInfo.speed;
 //	MPitch.pidOuter.fbValuePtr[0] = &MPitch.canInfo.encoder;
@@ -138,19 +141,11 @@ void Gimbal_Task(void *pvParameters)
 	//Yaw轴初始校准
 	offsetErrCode = yawOffset();
 	
-	//Kf mouseYkalman;	//PITCH 鼠标Y轴卡尔曼滤波
+	Kf mouseYkalman;	//PITCH 鼠标Y轴卡尔曼滤波
 	FivePower pitchCurver;	//YAW 五次三项曲线
 	pitchSetPos=4050;//中间值
 	while(1)
 	{
-		//脱力双重保护
-		if(RC.Key.SW2 == RCS::Down)
-		{
-			//延时1ms
-			vTaskDelay(pdMS_TO_TICKS(1));
-			continue;
-		}
-			
 		//用户切换云台YAW
 		if(RC.Key.CTRL && RC.KeyPress.V)
 		{
@@ -168,12 +163,12 @@ void Gimbal_Task(void *pvParameters)
 		switch(gimbalState)
 		{
 			case 0: //默认状态，摇杆和鼠标均能控制云台Pitch
-//				pitchSetPos -= RC.Key.CH[1]/150.0f;//遥控右拨杆Y轴
-//				pitchSetPos += mouseYkalman.KalmanFilter((double) RC.Key.CH[7]*15, 2.5f, 330.2f, 1);;//鼠标Y轴
+				pitchSetPos -= RC.Key.CH[1]/150.0f;//遥控右拨杆Y轴
+				pitchSetPos += mouseYkalman.KalmanFilter((double) RC.Key.CH[7]*15, 2.5f, 330.2f, 1);;//鼠标Y轴
 				yawTarPos = 0;	//yaw复位
 				break;
 			case 1: //看肚子状态，
-//				pitchSetPos = 0;
+				pitchSetPos = 0;
 				yawTarPos = -0;
 				break;
 			default:
@@ -197,7 +192,7 @@ void Gimbal_Task(void *pvParameters)
 		yawUserOffset = LIMIT(yawUserOffset,-360,360);
 		
 		//PITCH轴曲线
-//		pitchCurver.CurveModel(yawTarPos,&yawSetPos,1,1);
+		pitchCurver.CurveModel(yawTarPos,&yawSetPos,1,1);
 		
 		//电机执行
 		MYaw.ctrlPosition(yawSetPos + yawUserOffset);

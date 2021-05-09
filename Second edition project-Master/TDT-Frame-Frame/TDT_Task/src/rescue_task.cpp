@@ -47,7 +47,6 @@ void AirSend()
 	
 	canTx(Air_Cylinder,CAN1,0x112);	
 	
-
 }
 void Travel_switch_init()
 {
@@ -69,7 +68,6 @@ void rescue()		//步兵方案,也可用于强制救援
 		{
 			Relive.ctrlSpeed(0,0);							
 		}
-	
 	}
 	
 	if(AirCmd.reliveAir == 0 )
