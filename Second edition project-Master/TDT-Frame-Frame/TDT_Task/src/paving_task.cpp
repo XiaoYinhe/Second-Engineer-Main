@@ -20,11 +20,38 @@
 #include "dbus.h"
 #include "vision.h"
 #include "rescue_task.h"
+
+#include "task_virtual.h"
+
+
 Motor Pave[2]
 {
-	Motor (M3508,CAN1,0x205),
-    Motor (M3508,CAN1,0x206)
+	Motor (M3508,CAN1,0x207),
+    Motor (M3508,CAN1,0x208)
 };
+class PaveTask : public VirtualTask
+{
+public:
+	u8 offsetFlag=0;
+	void deforceCancelCallBack() override
+	{
+		VirtualTask::deforceCancelCallBack();
+		while(1)
+		{
+			offsetFlag = Pave[0].ctrlMotorOffset(-1,2000,7000);
+			Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
+			
+			if(offsetFlag >0)
+				break;
+			vTaskDelay(pdMS_TO_TICKS(5));
+		}
+	}
+};
+
+
+PaveTask paveTask;
+
+
 enum Paving_sta{anastole,insert};
 u8 flag_pave;
 void pave_ctrl()
@@ -33,11 +60,11 @@ void pave_ctrl()
 	{
 		case anastole:
 			Pave[0].ctrlPosition(0);
-			Pave[1].ctrlPosition(0);
+			Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
 			break;
 		case insert:
-			Pave[0].ctrlPosition(30000);
-		    Pave[1].ctrlPosition(-30000);
+			Pave[0].ctrlPosition(-60000);
+			Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
 			break;
 	
 	}
@@ -46,11 +73,11 @@ void pave_ctrl()
 
 void Paving_Task(void *pvParameters)
 {
+	paveTask.setTaskHandler(NULL);
 	PidParam in_pave[2],out_pave[2];
 	
 	for(int i = 0;i<2;i++)
     {
-    
     	Pave[i].pidInner.setPlanNum(2);
     	Pave[i].pidOuter.setPlanNum(2);
    
@@ -72,7 +99,6 @@ void Paving_Task(void *pvParameters)
     	
     	
     }
-	
 	while(1)
 	{
 	
