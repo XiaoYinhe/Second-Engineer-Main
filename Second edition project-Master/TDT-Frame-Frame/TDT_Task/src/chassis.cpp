@@ -1,7 +1,7 @@
 #include "chassis_task.h"
 
 /**FreeRTOS*START***************/
-#include "FreeRTOS.h" //FreeRTOSÊ¹ÓÃ
+#include "FreeRTOS.h" //FreeRTOSä½¿ç”¨
 #include "timers.h"
 #include "list.h"
 #include "queue.h"
@@ -27,19 +27,19 @@ PidParam inner[4],outer[4];
 
 #define MID_YAW_ENCODER   3000
 
-const float FB_MAXSPEED = 16384.0f / 660.0f; /**< µ×ÅÌÇ°ºóµÄ×î´óËÙ¶È*/   //16384
-const float LR_MAXSPEED = 16384.0f / 660.0f; /**< µ×ÅÌ×óÓÒµÄ×î´óËÙ¶È*/   //16384
-const float ROTA_MAXSPEED = 16384.0f / 660.0f; /**< µ×ÅÌÐý×ªµÄ×î´óËÙ¶È*/ //16384
+const float FB_MAXSPEED = 16384.0f / 660.0f; /**< åº•ç›˜å‰åŽçš„æœ€å¤§é€Ÿåº¦*/   //16384
+const float LR_MAXSPEED = 16384.0f / 660.0f; /**< åº•ç›˜å·¦å³çš„æœ€å¤§é€Ÿåº¦*/   //16384
+const float ROTA_MAXSPEED = 16384.0f / 660.0f; /**< åº•ç›˜æ—‹è½¬çš„æœ€å¤§é€Ÿåº¦*/ //16384
 
 typedef struct{
-	float FB;//Ç°ºóËÙ¶È
-	float LR;//×óÓÒËÙ¶È
-	float ROT;//Ðý×ªËÙ¶È
-	float ROX;//XÖáÐý×ª
+	float FB;//å‰åŽé€Ÿåº¦
+	float LR;//å·¦å³é€Ÿåº¦
+	float ROT;//æ—‹è½¬é€Ÿåº¦
+	float ROX;//Xè½´æ—‹è½¬
 }ChassisSpd_t;
 
 
-int16_t chassisSetSpd[4] = {0};//µ×ÅÌËÙ¶ÈÉè¶¨Öµ
+int16_t chassisSetSpd[4] = {0};//åº•ç›˜é€Ÿåº¦è®¾å®šå€¼
 float chassisCtrlIndex;
 
 void Chassis_Task(void *pvParameters)
@@ -83,8 +83,8 @@ void Chassis_Task(void *pvParameters)
 		chassisSetSpd[1] = - (int16_t)((- ChassisSpd.FB + ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) - ChassisSpd.ROT );
 		chassisSetSpd[2] = - (int16_t)((+ ChassisSpd.FB - ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) - ChassisSpd.ROT);
 		chassisSetSpd[3] = (int16_t)((- ChassisSpd.FB - ChassisSpd.LR) * ((!ChassisSpd.ROT) + (!!ChassisSpd.ROT * 0.4)) + ChassisSpd.ROT );
-		/*±£Ö¤ËÄµç»úºÏ³ÉËÙ¶È·½Ïò*/
-		float setMax;//×î´óËÙ¶ÈÖµ 
+		/*ä¿è¯å››ç”µæœºåˆæˆé€Ÿåº¦æ–¹å‘*/
+		float setMax;//æœ€å¤§é€Ÿåº¦å€¼ 
 		setMax = ABS(chassisSetSpd[0]);
 		for(u8 i = 0;i < WHEEL_NUM ; i++)
 		{
@@ -102,5 +102,6 @@ void Chassis_Task(void *pvParameters)
 	  	vTaskDelay(pdMS_TO_TICKS(5));
 	}
 }
+
 
 

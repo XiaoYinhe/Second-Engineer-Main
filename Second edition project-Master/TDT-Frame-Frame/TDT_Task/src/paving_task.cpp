@@ -1,15 +1,15 @@
 /************
-@brief ÆÌÂ·ÈÎÎñº¯Êı
-@describe	1¡¢´Ëº¯ÊıÓëÊÓ¾õÁªµ÷²åÕÏ°­¿éÊµÏÖÆÌÂ·
-			2¡¢°´¼ü¿ØÖÆ
-@function	¿ÉÒÔÖ±½ÓÊ¹ÓÃAirCmd	
+@brief é“ºè·¯ä»»åŠ¡å‡½æ•°
+@describe	1ã€æ­¤å‡½æ•°ä¸è§†è§‰è”è°ƒæ’éšœç¢å—å®ç°é“ºè·¯
+			2ã€æŒ‰é”®æ§åˆ¶
+@function	å¯ä»¥ç›´æ¥ä½¿ç”¨AirCmd	
 		
 		
 **************/
 
 #include "paving_task.h"
 /**FreeRTOS*START***************/
-#include "FreeRTOS.h" //FreeRTOSÊ¹ÓÃ
+#include "FreeRTOS.h" //FreeRTOSä½¿ç”¨
 #include "timers.h"
 #include "list.h"
 #include "queue.h"
@@ -22,8 +22,8 @@
 #include "rescue_task.h"
 Motor Pave[2]
 {
-	Motor (M3508,CAN1,0x205),
-    Motor (M3508,CAN1,0x206)
+	Motor (M3508,CAN2,0x207),
+    Motor (M3508,CAN2,0x208)
 };
 enum Paving_sta{anastole,insert};
 u8 flag_pave;

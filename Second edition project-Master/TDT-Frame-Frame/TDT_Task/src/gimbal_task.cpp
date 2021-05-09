@@ -1,7 +1,7 @@
 #include "gimbal_task.h"
 
 /**FreeRTOS*START***************/
-#include "FreeRTOS.h" //FreeRTOS π”√
+#include "FreeRTOS.h" 
 #include "timers.h"
 #include "list.h"
 #include "queue.h"
@@ -19,7 +19,7 @@
 #include "curve_model.h"
 
 extern Icm20602 icm20602;
-Motor MYaw = Motor(M2006,CAN2,0x202);
+Motor MYaw = Motor(M2006,CAN2,0x204);
 Motor MPitch = Motor(M3510,CAN2,0x201);
 
 

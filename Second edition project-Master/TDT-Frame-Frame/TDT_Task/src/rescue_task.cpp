@@ -1,7 +1,6 @@
 /************
-@brief	¾ÈÔ®ÈÎÎñ
-@descirbe	1¡¢Í¬µÚÒ»°æ³µ£¬»¹Ã»¼ÓÆø¸×
-			2¡¢
+@brief	æ•‘æ´ä»»åŠ¡
+@descirbe	1ã€åŒç¬¬ä¸€ç‰ˆè½¦ï¼Œè¿˜æ²¡åŠ æ°”ç¼¸
 @function 
 ************/
 
@@ -10,7 +9,7 @@
 #include "rescue_task.h"
 
 /**FreeRTOS*START***************/
-#include "FreeRTOS.h"					//FreeRTOSÊ¹ÓÃ	 
+#include "FreeRTOS.h"					//FreeRTOSä½¿ç”¨	 
 #include "timers.h"
 #include "list.h"
 #include "queue.h"
@@ -55,7 +54,7 @@ void Travel_switch_init()
 	Switch Travel = Switch(RCC_AHB1Periph_GPIOC,GPIOC,GPIO_Pin_13);
 	Travel.init();	
 }
-void rescue()		//²½±ø·½°¸,Ò²¿ÉÓÃÓÚÇ¿ÖÆ¾ÈÔ®
+void rescue()		//æ­¥å…µæ–¹æ¡ˆ,ä¹Ÿå¯ç”¨äºå¼ºåˆ¶æ•‘æ´
 {
 	if(Travel_Switch_STA_Compulsory == 1 )
 	{
@@ -75,12 +74,12 @@ void rescue()		//²½±ø·½°¸,Ò²¿ÉÓÃÓÚÇ¿ÖÆ¾ÈÔ®
 	
 	if(AirCmd.reliveAir == 0 )
 	{
-		if(abs(Relive.canInfo.totalRound) < 4)		//³õÊ¼Î»ÖÃÎª0Ê±--²»¶¯
+		if(abs(Relive.canInfo.totalRound) < 4)		//åˆå§‹ä½ç½®ä¸º0æ—¶--ä¸åŠ¨
 		{
 			Relive.ctrlSpeed(0,0);
 		}
 		
-		else						//³õÊ¼Î»ÖÃ²»Îª0Ê±--¶¯
+		else						//åˆå§‹ä½ç½®ä¸ä¸º0æ—¶--åŠ¨
 		{
 			rescue_flag = 0;
 			unrescue_flag++;
@@ -102,7 +101,7 @@ void rescue()		//²½±ø·½°¸,Ò²¿ÉÓÃÓÚÇ¿ÖÆ¾ÈÔ®
 
 void Help_without_holding()
 {
-	/*Ìø±ä±êÖ¾Î»ÉèÖÃ*/
+	/*è·³å˜æ ‡å¿—ä½è®¾ç½®*/
 	if( Travel_Switch_STA == 1)
 	{
 		Flag_Help_Start = 1;
@@ -113,10 +112,10 @@ void Help_without_holding()
 	}
 	if(Flag_Help_Start == 1)
 	{
-		if(travel_on == 1 && travel_on_last == 0)	//×²Ò»ÏÂĞĞ³Ì¿ª¹Ø
+		if(travel_on == 1 && travel_on_last == 0)	//æ’ä¸€ä¸‹è¡Œç¨‹å¼€å…³
 		{
-			AirCmd.reliveAir = 1;			//¾ÈÔ®×¦×Ó·ÅÏÂ
-			flagunhelp = 0;					//¾ÈÔ®¿¨È«²¿Éì³ö
+			AirCmd.reliveAir = 1;			//æ•‘æ´çˆªå­æ”¾ä¸‹
+			flagunhelp = 0;					//æ•‘æ´å¡å…¨éƒ¨ä¼¸å‡º
 			flaghelp++;
 			Relive.ctrlSpeed(Relive.getMotorSpeedLimit()/3.0,0);
 			error_help = Relive.pidInner.error;
