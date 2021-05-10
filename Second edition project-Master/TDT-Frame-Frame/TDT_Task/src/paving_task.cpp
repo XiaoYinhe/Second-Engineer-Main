@@ -78,7 +78,7 @@ void Paving_Task(void *pvParameters)
 		//电机零点校准校准
 		while(paveTask.offsetFlag == 0)
 		{
-			paveTask.offsetFlag = Pave[0].ctrlMotorOffset(150,10000,7000);
+			paveTask.offsetFlag = Pave[0].ctrlMotorOffset(170,8000,6000);
 			Pave[1].ctrlCurrent(-Pave[0].pidInner.result);
 			
 			if(paveTask.offsetFlag >0)
@@ -91,11 +91,11 @@ void Paving_Task(void *pvParameters)
 		switch(flag_pave)
 		{
 			case anastole:	//收回
-				paveSetPos = -4000;	
+				paveSetPos = -800;	
 			out_pave.resultMax = 1200;	//限速的同时保证输出不要太小
 				break;
 			case insert:	//放下
-				paveSetPos = -60000;
+				paveSetPos = -50000;
 				out_pave.resultMax = 500;
 				break;
 		}

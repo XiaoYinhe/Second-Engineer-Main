@@ -108,9 +108,9 @@ void Start_Task(void* pvParameters)
 	creatResult[taskNum++]=		mTaskCreate(DBUS,Dbus);//遥控器解算任务
 
 	creatResult[taskNum++]= 	mTaskCreate(CHASSIS,Chassis);//底盘任务
-//	creatResult[taskNum++]= 	mTaskCreate(RESCUE,Rescue);//救援任务
+	creatResult[taskNum++]= 	mTaskCreate(RESCUE,Rescue);//救援任务
 	creatResult[taskNum++]= 	mTaskCreate(PAVING,Paving);//铺路任务
-//	creatResult[taskNum++]= 	mTaskCreate(GIMBAL,Gimbal);//云台任务
+	creatResult[taskNum++]= 	mTaskCreate(GIMBAL,Gimbal);//云台任务
 
 	
 #if USE_JUDGEMENT
